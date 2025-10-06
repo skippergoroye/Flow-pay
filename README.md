@@ -183,3 +183,22 @@ MIT
 ## Support
 
 For issues and questions, please open an issue on GitHub.
+
+
+Installations
+1. npm install @nestjs/typeorm typeorm
+2. npm install @nestjs/config
+3. npm install axios @types/axios
+4. npm install class-validator
+5. npm install @nestjs/jwt
+6. npm install bcrypt
+7. npm install --save-dev @types/bcrypt
+8. npm install --save-dev @types/passport-jwt
+9. npm install passport-jwt
+10. npm install class-transformer
+11. npm install pg
+
+
+
+
+This is a Paystack account limitation, not a code issue. The withdraw endpoint requires a verified business account with Paystack. Let me update the code to handle this better and provide an alternative solution:
