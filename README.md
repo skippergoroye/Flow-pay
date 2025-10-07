@@ -202,3 +202,13 @@ Installations
 
 
 This is a Paystack account limitation, not a code issue. The withdraw endpoint requires a verified business account with Paystack. Let me update the code to handle this better and provide an alternative solution:
+
+
+
+
+The error is not a bug in your code - it's a Paystack account limitation. Here's what's happening:
+The Issue:
+
+Paystack test accounts cannot make bank transfers/withdrawals
+This requires a verified business account with live API keys
+Your code is working correctly - Paystack is blocking the request
