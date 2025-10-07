@@ -13,7 +13,8 @@ async function bootstrap() {
   app.enableCors();
   app.setGlobalPrefix('api/v1');
   
-  await app.listen(3000);
-  console.log('FlowPay API running on http://localhost:3000');
+ const port = process.env.PORT || 3000;
+await app.listen(port, '0.0.0.0');
+console.log(`🚀 FlowPay API running on port ${port}`);
 }
 bootstrap();

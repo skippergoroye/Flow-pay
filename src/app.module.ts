@@ -32,7 +32,7 @@ import { PaystackModule } from './paystack/paystack.module';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         autoLoadEntities: true,
-        synchronize: false,
+        synchronize: true,
         ssl: { rejectUnauthorized: false },
         extra: { ssl: { rejectUnauthorized: false } },
         logging: true,
