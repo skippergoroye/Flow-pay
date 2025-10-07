@@ -327,5 +327,38 @@
 
 
 
+// env 
+// NODE_ENV=development
+// PORT=3000
+
+
+// DB_PORT=5432
+// DB_HOST=localhost
+// DB_USERNAME=postgres
+// DB_PASSWORD=skipper
+// DB_NAME=flowpay_db
+// DB_DIALECT=postgres
+
+// DATABASE_URL=postgresql://postgres.gdnebelehgkhqfzvoant:t8EAzONVpPHeVdym@aws-1-us-east-2.pooler.supabase.com:6543/postgres
+// // Supabase password
+// t8EAzONVpPHeVdym
+
+
+// JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
+
+
+// PAYSTACK_SECRET_KEY=sk_test_your_paystack_secret_key
+// PAYSTACK_PUBLIC_KEY=pk_test_your_paystack_public_key
+
+
+// FRONTEND_URL=http://localhost:3000/dashboard
+
+
+
+
+
+
+
+
 
 
