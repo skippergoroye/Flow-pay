@@ -1,3 +1,4 @@
+// src/wallet/wallet.service.ts - ADD THESE NEW METHODS
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -35,6 +36,22 @@ export class WalletService {
     }
 
     return {
+      balance: Number(wallet.balance),
+      currency: wallet.currency,
+    };
+  }
+
+  async getWalletDetails(userId: string): Promise<{ accountNumber: string; balance: number; currency: string }> {
+    const wallet = await this.walletRepo.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (!wallet) {
+      throw new NotFoundException('Wallet not found');
+    }
+
+    return {
+      accountNumber: wallet.accountNumber,
       balance: Number(wallet.balance),
       currency: wallet.currency,
     };
@@ -145,6 +162,84 @@ export class WalletService {
         description: `Transfer to ${recipient.firstName} ${recipient.lastName}`,
         recipientEmail,
         recipientName: `${recipient.firstName} ${recipient.lastName}`,
+        balanceBefore: senderBalanceBefore,
+        balanceAfter: Number(senderWallet.balance),
+      });
+
+      const savedTransaction = await queryRunner.manager.save(transaction);
+      await queryRunner.commitTransaction();
+
+      return savedTransaction;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async transferByAccountNumber(
+    senderId: string,
+    recipientAccountNumber: string,
+    amount: number,
+  ): Promise<Transaction> {
+    if (amount <= 0) {
+      throw new BadRequestException('Amount must be greater than zero');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const senderWallet = await queryRunner.manager.findOne(Wallet, {
+        where: { user: { id: senderId } },
+        relations: ['user'],
+      });
+
+      if (!senderWallet) {
+        throw new NotFoundException('Sender wallet not found');
+      }
+
+      if (Number(senderWallet.balance) < amount) {
+        throw new BadRequestException('Insufficient balance');
+      }
+
+      // Find recipient by account number
+      const recipientWallet = await queryRunner.manager.findOne(Wallet, {
+        where: { accountNumber: recipientAccountNumber },
+        relations: ['user'],
+      });
+
+      if (!recipientWallet) {
+        throw new NotFoundException('Recipient account not found');
+      }
+
+      // Prevent self-transfer
+      if (senderWallet.accountNumber === recipientAccountNumber) {
+        throw new BadRequestException('Cannot transfer to your own account');
+      }
+
+      // Debit sender
+      const senderBalanceBefore = Number(senderWallet.balance);
+      senderWallet.balance = Number(senderWallet.balance) - amount;
+      await queryRunner.manager.save(senderWallet);
+
+      // Credit recipient
+      recipientWallet.balance = Number(recipientWallet.balance) + amount;
+      await queryRunner.manager.save(recipientWallet);
+
+      // Create transaction record
+      const reference = `TRF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const transaction = queryRunner.manager.create(Transaction, {
+        user: senderWallet.user,
+        reference,
+        amount,
+        type: TransactionType.DEBIT,
+        status: TransactionStatus.SUCCESS,
+        description: `Transfer to ${recipientWallet.user.firstName} ${recipientWallet.user.lastName}`,
+        recipientEmail: recipientWallet.user.email,
+        recipientName: `${recipientWallet.user.firstName} ${recipientWallet.user.lastName}`,
         balanceBefore: senderBalanceBefore,
         balanceAfter: Number(senderWallet.balance),
       });
